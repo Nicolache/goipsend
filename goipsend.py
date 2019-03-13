@@ -6,7 +6,10 @@
 # sys        module is used here to retreive arguments that are followed with this script launch
 # subprocess module is used here to launch a zabbix_sender console command
 # config.py is a configuration that could be overriden by command line arguments
-import requests, time, logging, sys
+import requests
+import time
+import logging
+import sys
 from subprocess import Popen, PIPE, STDOUT
 from config import arguments
 
