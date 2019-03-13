@@ -33,7 +33,6 @@ def console_exec( cmd ):
 def parse_balances( xml_line ):
     result_list = []
     for line in xml_line.split('\n'):
-        print line
         if '<error' in line:
             error = line.split('>')[1]
             if '<' in error:
@@ -47,13 +46,14 @@ def parse_balances( xml_line ):
                 result_list.append(balance)
             except:
                 pass
-    print result_list
     logging.info( result_list )
-    return result_list[:4]
+    return result_list
 
 def send_to_zabbix( values_list ):
     for id_value, value in enumerate(values_list, start=1):
-        console_exec( arguments['zabbix_sender_path'] + ' -z ' + arguments['zabbix_ip'] + ' -s ' + arguments['zabbix_hosts_unit'] + ' -k '  + arguments['zabbix_key' + str(id_value)] + ' -o ' + value )
+        zabbix_key = 'zabbix_key' + str(id_value)
+        if zabbix_key in arguments:
+            console_exec( arguments['zabbix_sender_path'] + ' -z ' + arguments['zabbix_ip'] + ' -s ' + arguments['zabbix_hosts_unit'] + ' -k '  + arguments[zabbix_key] + ' -o ' + value )
 
 def send_message( lines, message_type ):
     for line in lines:
@@ -95,7 +95,7 @@ if arguments['mode'] == 'ussd':
     time.sleep( ussd_answer_wait_timer )
     resp = read_ussd_response_out_of_xml( ses )
     result_list = parse_balances( resp )
-    # send_to_zabbix( result_list )
+    send_to_zabbix( result_list )
 elif arguments['mode'] == 'sms':
     #message = 'Hello mama. I have run out of money. Send me another 400000 USD.'
     send_message( arguments['smsports'].split(',') , arguments['mode'] )
