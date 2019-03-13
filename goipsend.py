@@ -48,7 +48,6 @@ def parse_balances( xml_line ):
         if pos <> -1:
             result_list.append(d[0:pos + 3])
     logging.info( result_list )
-    send_to_zabbix( result_list )
     return result_list
 
 def send_to_zabbix( values_list ):
@@ -94,7 +93,8 @@ if arguments['mode'] == 'ussd':
     send_message( arguments['ussdports'].split(',') , arguments['mode'] )
     time.sleep( ussd_answer_wait_timer )
     resp = read_ussd_response_out_of_xml( ses )
-    parse_balances( resp )
+    result_list = parse_balances( resp )
+    send_to_zabbix( result_list )
 elif arguments['mode'] == 'sms':
     #message = 'Hello mama. I have run out of money. Send me another 400000 USD.'
     send_message( arguments['smsports'].split(',') , arguments['mode'] )
