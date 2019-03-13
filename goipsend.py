@@ -58,15 +58,15 @@ def send_message( lines, message_type ):
         data = {'send': 'Send'}
         data.update( { 'line' : str(line) } )
         if message_type == 'sms':
-            dat.update( { 'action' : 'SMS', 'smscontent' : arguments['message'] } )
+            data.update( { 'action' : 'SMS', 'smscontent' : arguments['message'] } )
             dstnums = arguments['dstphonenumbers'].split(',')
             for j in range(0,len(dstnums)):
-                dat.update( { 'telnum' : dstnums[j] , 'smskey' : get_smskey() } )
-                logging.info( dat )
+                data.update( { 'telnum' : dstnums[j] , 'smskey' : get_smskey() } )
+                logging.info( data )
                 ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = data)
         if message_type == 'ussd':
-            dat.update( { 'action' : 'USSD', 'telnum': balance_telnumber , 'smskey' : get_smskey() } )
-            logging.info( dat )
+            data.update( { 'action' : 'USSD', 'telnum': balance_telnumber , 'smskey' : get_smskey() } )
+            logging.info( data )
             ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = data)
 
 def read_ussd_response_out_of_xml( session ):
