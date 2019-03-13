@@ -1,0 +1,15 @@
+#!/usr/bin/python
+arguments = {
+'user' : 'admin',#gsm gateway web-GUI login
+'passwd' : 'admin',#gsm gateway web-GUI password
+'zabbix_ip' : '192.168.0.3',#zabbix server ip
+'zabbix_hosts_unit' : 'host_in_zabbix',#a host name on zabbix that was created for a batch of items
+#the type of zabbix item must be Zabbix trapper
+'zabbix_key1' : 'line1',#an item key in zabbix
+'zabbix_key2' : 'line2',#an item key in zabbix
+'zabbix_key3' : 'line3',#an item key in zabbix
+'zabbix_key4' : 'line4',#an item key in zabbix
+'our_gsm_gateway_ip' : '192.168.0.4',
+'zabbix_sender_path' : '/usr/bin/zabbix_sender'
+'ussdports' : '1,2,3,4'
+}

@@ -1,0 +1,29 @@
+goipsend.py
+A python application to send sms/ussd via GoIP4 GSM gateway.
+
+Arguments:
+There is a list of arguments that are presented in built-in `arguments` dictionary that could be set via `config.py`, or overridden via command line arguments that look like dictionary fields themselves but with the prefix `--` :
+--user                 A usual login that is used for gsm gateway web-GUI
+--passwd               An usual password that is used for gsm gateway web-GUI
+--zabbix_ip            A zabbix server ip
+--zabbix_hosts_unit    The name of host on zabbix. A host name on zabbix that was created for a batch of items.
+--zabbix_key1          An item key in zabbix
+--zabbix_key2          An item key in zabbix
+--zabbix_key3          An item key in zabbix
+--zabbix_key4          An item key in zabbix
+--our_gsm_gateway_ip   A GoIP4 ip address
+--zabbix_sender_path   /usr/bin/zabbix_sender for example
+--message              An sms message text (content).
+--mode                 sms, or ussd
+--ussdports            Outgoing GSM lines that take part in ussd sending. It could be as a comma-separated list. 1,2,3,4 is default.
+--smsports             Outgoing GSM lines that take part in sms sending. It could be as a comma-separated list.
+--dstphonenumbers      A list of phonenumbers to send sms's to. Could be as a comma-separated list.
+
+You can findout the full list of arguments possible by viewing `arguments` dictionary content while goipsend.py is running.
+
+Examples:
+python goipsend.py --mode ussd
+- This will work if there are settings in config.py. This will inquire the balances on all the sim-cards with sending results to zabbix. The results could be seen in log-file, if there are no zabbix settings.
+
+python goipsend.py --mode sms --message "Hello mama. I have run out of money. Send me another 400000 USD." --dstphonenumbers +79157444367,+79519555425 --smsports 1
+- This will send sms to 2 phone-numbers via 1st GSM line. This will work if there are settings in config.py, or --user, --passwd, --our_gsm_gateway_ip are added as arguments too.
