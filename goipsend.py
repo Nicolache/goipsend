@@ -63,11 +63,11 @@ def send_message( lines, message_type ):
             dat.update( { 'action' : 'SMS', 'smscontent' : arguments['message'] } )
             dstnums = arguments['dstphonenumbers'].split(',')
             for j in range(0,len(dstnums)):
-                dat.update( { 'telnum' : dstnums[j] , 'smskey' : str(int(round(time.time() * 1000000)))[8:] } )
+                dat.update( { 'telnum' : dstnums[j] , 'smskey' : get_smskey() } )
                 logging.info( dat )
                 ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat)
         if message_type == 'ussd':
-            dat.update( { 'action' : 'USSD', 'telnum': balance_telnumber , 'smskey' : str(int(round(time.time() * 1000000)))[8:] } )
+            dat.update( { 'action' : 'USSD', 'telnum': balance_telnumber , 'smskey' : get_smskey() } )
             logging.info( dat )
             ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat)
 
@@ -81,6 +81,10 @@ def args_parse():
         if sys.argv[i][0:2] == '--':
             arguments.update({sys.argv[i][2:]: sys.argv[i+1]})
     logging.debug(arguments)
+
+
+def get_smskey():
+    return str(int(round(time.time() * 1000000)))[8:]
                 
 ses = requests.session()
 
