@@ -33,14 +33,21 @@ def console_exec( cmd ):
 def parse_balances( xml_line ):
     result_list = []
     for line in xml_line.split('\n'):
+        print line
         if '<error' in line:
             error = line.split('>')[1]
             if '<' in error:
-                error = ''
+                result_list.append('')
+                continue
             error = error.replace('Баланс: ', '')
             error = error.replace('р.','')
             balance = error.split(' ')[0]
-            result_list.append(balance)
+            try:
+                float(balance)
+                result_list.append(balance)
+            except:
+                pass
+    print result_list
     logging.info( result_list )
     return result_list[:4]
 
@@ -88,7 +95,7 @@ if arguments['mode'] == 'ussd':
     time.sleep( ussd_answer_wait_timer )
     resp = read_ussd_response_out_of_xml( ses )
     result_list = parse_balances( resp )
-    send_to_zabbix( result_list )
+    # send_to_zabbix( result_list )
 elif arguments['mode'] == 'sms':
     #message = 'Hello mama. I have run out of money. Send me another 400000 USD.'
     send_message( arguments['smsports'].split(',') , arguments['mode'] )
