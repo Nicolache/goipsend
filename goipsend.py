@@ -32,6 +32,7 @@ def console_exec( cmd ):
     return cmd_output
 
 def parse_balances( xml_line ):
+    print(xml_line)
     i = 0
     a = ''
     result_list = []
@@ -52,8 +53,8 @@ def parse_balances( xml_line ):
     return result_list
 
 def send_to_zabbix( values_list ):
-    for i in range(0,len(values_list)):
-        console_exec( arguments['zabbix_sender_path'] + ' -z ' + arguments['zabbix_ip'] + ' -s ' + arguments['zabbix_hosts_unit'] + ' -k '  + arguments['zabbix_key' + str(i+1)] + ' -o ' + values_list[i] )
+    for id_value, value in enumerate(values_list, start=1):
+        console_exec( arguments['zabbix_sender_path'] + ' -z ' + arguments['zabbix_ip'] + ' -s ' + arguments['zabbix_hosts_unit'] + ' -k '  + arguments['zabbix_key' + str(id_value)] + ' -o ' + value )
 
 def send_message( lines, message_type ):
     for i in range(0,len(lines)):
