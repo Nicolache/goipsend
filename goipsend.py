@@ -15,7 +15,6 @@ from config import arguments
 
 log_path_name = './logs.log'
 ussd_answer_wait_timer = 10
-Data = {'send': 'Send'}
 balance_telnumber = '*100#'
 Headers = {'Accept': '*/*'}
 arguments.update( {'mode' : 'ussd'} )
@@ -55,20 +54,20 @@ def send_to_zabbix( values_list ):
         console_exec( arguments['zabbix_sender_path'] + ' -z ' + arguments['zabbix_ip'] + ' -s ' + arguments['zabbix_hosts_unit'] + ' -k '  + arguments['zabbix_key' + str(id_value)] + ' -o ' + value )
 
 def send_message( lines, message_type ):
-    for i in range(0,len(lines)):
-        dat = Data
-        dat.update( { 'line' : lines[i] } )
+    for line in lines:
+        data = {'send': 'Send'}
+        data.update( { 'line' : line } )
         if message_type == 'sms':
             dat.update( { 'action' : 'SMS', 'smscontent' : arguments['message'] } )
             dstnums = arguments['dstphonenumbers'].split(',')
             for j in range(0,len(dstnums)):
                 dat.update( { 'telnum' : dstnums[j] , 'smskey' : get_smskey() } )
                 logging.info( dat )
-                ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat)
+                ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = data)
         if message_type == 'ussd':
             dat.update( { 'action' : 'USSD', 'telnum': balance_telnumber , 'smskey' : get_smskey() } )
             logging.info( dat )
-            ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat)
+            ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = data)
 
 def read_ussd_response_out_of_xml( session ):
     Answer = session.post('http://' + arguments['our_gsm_gateway_ip'] + '/default/en_US/send_sms_status.xml?u=' + arguments['user'] + '&p=' + arguments['passwd']).content
