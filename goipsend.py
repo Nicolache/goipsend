@@ -31,23 +31,18 @@ def console_exec( cmd ):
     return cmd_output
 
 def parse_balances( xml_line ):
-    i = 0
-    a = ''
     result_list = []
-    while i < len(xml_line):
-        while i < len(xml_line) and xml_line[i:i+6] <> '<error':
-            i += 1
-        while i < len(xml_line) and xml_line[i:i+7] <> '</error':
-            i += 1
-            a = a + xml_line[i]
-    b = a.replace('>Баланс: ', '>')
-    c = b.split('>')
-    for d in c:
-        pos = d.find('.')
-        if pos <> -1:
-            result_list.append(d[0:pos + 3])
+    for line in xml_line.split('\n'):
+        if '<error' in line:
+            error = line.split('>')[1]
+            if '<' in error:
+                error = ''
+            error = error.replace('Баланс: ', '')
+            error = error.replace('р.','')
+            balance = error.split(' ')[0]
+            result_list.append(balance)
     logging.info( result_list )
-    return result_list
+    return result_list[:4]
 
 def send_to_zabbix( values_list ):
     for id_value, value in enumerate(values_list, start=1):
