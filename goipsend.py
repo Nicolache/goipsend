@@ -56,7 +56,7 @@ def send_to_zabbix( values_list ):
 def send_message( lines, message_type ):
     for line in lines:
         data = {'send': 'Send'}
-        data.update( { 'line' : line } )
+        data.update( { 'line' : str(line) } )
         if message_type == 'sms':
             dat.update( { 'action' : 'SMS', 'smscontent' : arguments['message'] } )
             dstnums = arguments['dstphonenumbers'].split(',')
@@ -89,7 +89,7 @@ ses = requests.session()
 args_parse()
 
 if arguments['mode'] == 'ussd':
-    send_message( arguments['ussdports'].split(',') , arguments['mode'] )
+    send_message( arguments['lines'], arguments['mode'] )
     time.sleep( ussd_answer_wait_timer )
     resp = read_ussd_response_out_of_xml( ses )
     result_list = parse_balances( resp )
