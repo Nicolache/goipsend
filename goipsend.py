@@ -65,11 +65,11 @@ def send_message( lines, message_type ):
             for j in range(0,len(dstnums)):
                 dat.update( { 'telnum' : dstnums[j] , 'smskey' : str(int(round(time.time() * 1000000)))[8:] } )
                 logging.info( dat )
-                ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat).content
+                ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat)
         if message_type == 'ussd':
             dat.update( { 'action' : 'USSD', 'telnum': balance_telnumber , 'smskey' : str(int(round(time.time() * 1000000)))[8:] } )
             logging.info( dat )
-            ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat).content
+            ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat)
 
 def read_ussd_response_out_of_xml( session ):
     Answer = session.post('http://' + arguments['our_gsm_gateway_ip'] + '/default/en_US/send_sms_status.xml?u=' + arguments['user'] + '&p=' + arguments['passwd']).content
