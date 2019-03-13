@@ -32,7 +32,6 @@ def console_exec( cmd ):
     return cmd_output
 
 def parse_balances( xml_line ):
-    print(xml_line)
     i = 0
     a = ''
     result_list = []

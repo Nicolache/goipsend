@@ -10,6 +10,6 @@ arguments = {
 'zabbix_key3' : 'line3',#an item key in zabbix
 'zabbix_key4' : 'line4',#an item key in zabbix
 'our_gsm_gateway_ip' : '192.168.0.4',
-'zabbix_sender_path' : '/usr/bin/zabbix_sender'
-'ussdports' : '1,2,3,4'
+'zabbix_sender_path' : '/usr/bin/zabbix_sender',
+'ussdports' : '1,2,3,4',
 }
