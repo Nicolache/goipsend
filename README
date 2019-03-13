@@ -23,7 +23,7 @@ You can findout the full list of arguments possible by viewing `arguments` dicti
 
 Examples:
 python goipsend.py --mode ussd
-- This will work if there are settings in config.py. This will inquire the balances on all the sim-cards with sending results to zabbix. The results could be seen in log-file, if there are no zabbix settings.
+- This will work if there are settings in config.py. This will inquire the balances on all the sim-cards with sending results to zabbix. The results could be seen in log-file.
 
 python goipsend.py --mode sms --message "Hello mama. I have run out of money. Send me another 400000 USD." --dstphonenumbers +79157444367,+79519555425 --smsports 1
 - This will send sms to 2 phone-numbers via 1st GSM line. This will work if there are settings in config.py, or --user, --passwd, --our_gsm_gateway_ip are added as arguments too.
