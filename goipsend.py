@@ -18,11 +18,9 @@ from config import arguments
 log_path_name = './logs.log'
 ussd_answer_wait_timer = 10
 balance_telnumber = '*100#'
-Headers = {'Accept': '*/*'}
 arguments.update( {'mode' : 'ussd'} )
 
 loglevel = logging.INFO
-#loglevel = logging.DEBUG
 logger = logging.getLogger("")
 logger.setLevel(loglevel)
 logging.basicConfig(filename = log_path_name, level = loglevel, format = '%(asctime)s - %(levelname)s - %(message)s')
@@ -101,5 +99,4 @@ if arguments['mode'] == 'ussd':
     result_list = parse_balances( resp )
     send_to_zabbix( result_list )
 elif arguments['mode'] == 'sms':
-    #message = 'Hello mama. I have run out of money. Send me another 400000 USD.'
     send_message( arguments['smsports'].split(',') , arguments['mode'] )
