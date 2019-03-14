@@ -46,6 +46,7 @@ def parse_balances( xml_line ):
                 float(balance)
                 result_list.append(balance)
             except:
+                logging.warning('balance is not float: ' + balance)
                 result_list.append('')
         else:
             result_list.append('')
@@ -98,7 +99,7 @@ if arguments['mode'] == 'ussd':
     time.sleep( ussd_answer_wait_timer )
     resp = read_ussd_response_out_of_xml( ses )
     result_list = parse_balances( resp )
-    # send_to_zabbix( result_list )
+    send_to_zabbix( result_list )
 elif arguments['mode'] == 'sms':
     #message = 'Hello mama. I have run out of money. Send me another 400000 USD.'
     send_message( arguments['smsports'].split(',') , arguments['mode'] )
