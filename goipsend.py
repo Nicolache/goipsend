@@ -25,15 +25,17 @@ logger = logging.getLogger("")
 logger.setLevel(loglevel)
 logging.basicConfig(filename = log_path_name, level = loglevel, format = '%(asctime)s - %(levelname)s - %(message)s')
 
-def console_exec( cmd ):
+
+def console_exec(cmd):
     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
     cmd_output = p.stdout.read()
     return cmd_output
 
-def parse_balances( xml_line ):
+
+def parse_balances(xml_line):
     dom = parseString(xml_line)
     result_list = []
-    for n in range(1,9):
+    for n in range(1, 9):
         error = dom.getElementsByTagName('error'+str(n))[0].childNodes
         if error:
             error = error[0].data
@@ -51,52 +53,80 @@ def parse_balances( xml_line ):
     logging.info( result_list )
     return result_list
 
-def send_to_zabbix( values_list ):
+
+def send_to_zabbix(values_list):
     for id_value, value in enumerate(values_list, start=1):
         zabbix_key = 'zabbix_key' + str(id_value)
         if zabbix_key in arguments:
-            console_exec( arguments['zabbix_sender_path'] + ' -z ' + arguments['zabbix_ip'] + ' -s ' + arguments['zabbix_hosts_unit'] + ' -k '  + arguments[zabbix_key] + ' -o ' + value )
+            console_exec(
+                arguments['zabbix_sender_path'] + \
+                ' -z ' + arguments['zabbix_ip'] + \
+                ' -s ' + arguments['zabbix_hosts_unit'] + \
+                ' -k '  + arguments[zabbix_key] + \
+                ' -o ' + value 
+            )
 
-def send_message( lines, message_type ):
+
+def send_message(lines, message_type):
     for line in lines:
         data = {'send': 'Send'}
-        data.update( { 'line' : str(line) } )
+        data.update({'line': str(line)})
         if message_type == 'sms':
-            data.update( { 'action' : 'SMS', 'smscontent' : arguments['message'] } )
+            data['action'] = 'SMS'
+            data['smscontent'] = arguments['message'],
             dstnums = arguments['dstphonenumbers'].split(',')
-            for j in range(0,len(dstnums)):
-                data.update( { 'telnum' : dstnums[j] , 'smskey' : get_smskey() } )
-                logging.info( data )
-                ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = data)
+            for dstnum in dstnums:
+                data['telnum'] = dstnum
+                data['smskey'] = get_smskey()
+                logging.info(data)
+                ses.post(
+                    'http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + \
+                    '/default/en_US/sms_info.html?type=' + message_type,
+                    data = data)
         if message_type == 'ussd':
-            data.update( { 'action' : 'USSD', 'telnum': balance_telnumber , 'smskey' : get_smskey() } )
-            logging.info( data )
-            ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = data)
+            data['action'] = 'USSD',
+            data['telnum'] = balance_telnumber
+            data['smskey'] = get_smskey()
+            logging.info(data)
+            ses.post(
+                'http://' + arguments['user'] + \
+                ':' + arguments['passwd'] + \
+                '@' + arguments['our_gsm_gateway_ip'] + \
+                '/default/en_US/sms_info.html?' + \
+                'type=' + message_type,
+                data = data)
 
-def read_ussd_response_out_of_xml( session ):
-    Answer = session.post('http://' + arguments['our_gsm_gateway_ip'] + '/default/en_US/send_sms_status.xml?u=' + arguments['user'] + '&p=' + arguments['passwd']).content
-    logging.info( Answer )
-    return Answer
+
+def read_ussd_response_out_of_xml(session):
+    answer = session.post(
+        'http://' + arguments['our_gsm_gateway_ip'] + \
+        '/default/en_US/send_sms_status.xml?' + \
+        'u=' + arguments['user'] + \
+        '&p=' + arguments['passwd']).content
+    logging.info(answer)
+    return answer
+
 
 def args_parse():
-    for i in range(1,len(sys.argv)):
+    for i in range(1, len(sys.argv)):
         if sys.argv[i][0:2] == '--':
-            arguments.update({sys.argv[i][2:]: sys.argv[i+1]})
+            arguments[sys.argv[i][2:]] = sys.argv[i+1]
     logging.debug(arguments)
 
 
 def get_smskey():
     return str(int(round(time.time() * 1000000)))[8:]
-                
+
+
 ses = requests.session()
 
 args_parse()
 
 if arguments['mode'] == 'ussd':
-    send_message( arguments['lines'], arguments['mode'] )
-    time.sleep( ussd_answer_wait_timer )
-    resp = read_ussd_response_out_of_xml( ses )
-    result_list = parse_balances( resp )
-    send_to_zabbix( result_list )
+    send_message(arguments['lines'], arguments['mode'])
+    time.sleep(ussd_answer_wait_timer)
+    resp = read_ussd_response_out_of_xml(ses)
+    result_list = parse_balances(resp)
+    send_to_zabbix(result_list)
 elif arguments['mode'] == 'sms':
-    send_message( arguments['smsports'].split(',') , arguments['mode'] )
+    send_message(arguments['smsports'].split(','), arguments['mode'])
