@@ -43,7 +43,7 @@ def parse_balances(xml_line):
             balance = error.split(' ')[0]
             try:
                 float(balance)
-                result_list.append(balance)
+                result_list.append(str(balance))
             except:
                 logging.warning('balance is not float: ' + balance)
                 result_list.append('')
@@ -53,15 +53,14 @@ def parse_balances(xml_line):
     return result_list
 
 
-def send_to_zabbix(values_list):
-    for id_value, value in enumerate(values_list, start=1):
-        zabbix_key = 'zabbix_key' + str(id_value)
-        if zabbix_key in arguments:
+def send_to_zabbix(values_list, zabbix_sender_path, zabbix_ip, zabbix_hosts_unit, zabbix_keys):
+    for id_value, value in enumerate(values_list):
+        if id_value < len(zabbix_keys):
             console_exec(
-                arguments['zabbix_sender_path'] + \
-                ' -z ' + arguments['zabbix_ip'] + \
-                ' -s ' + arguments['zabbix_hosts_unit'] + \
-                ' -k '  + arguments[zabbix_key] + \
+                zabbix_sender_path + \
+                ' -z ' + zabbix_ip + \
+                ' -s ' + zabbix_hosts_unit + \
+                ' -k '  + zabbix_keys[id_value] + \
                 ' -o ' + value 
             )
 
@@ -118,7 +117,7 @@ def get_smskey():
     return str(int(round(time.time() * 1000000)))[8:]
 
 
-def main():
+def main(arguments):
     session = requests.session()
     arguments['mode'] = 'ussd'
     arguments = args_parse(arguments)
@@ -127,9 +126,16 @@ def main():
         time.sleep(ussd_answer_wait_timer)
         resp = read_ussd_response_out_of_xml(session)
         result_list = parse_balances(resp)
-        send_to_zabbix(result_list)
+        send_to_zabbix(
+            result_list, 
+            arguments['zabbix_sender_path'],
+            arguments['zabbix_ip'],
+            arguments['zabbix_hosts_unit'],
+            arguments['zabbix_keys']
+        )
     elif arguments['mode'] == 'sms':
         send_message(arguments['smsports'].split(','), arguments['mode'])
 
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(arguments))
