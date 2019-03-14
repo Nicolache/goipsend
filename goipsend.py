@@ -11,7 +11,9 @@ import time
 import logging
 import sys
 from subprocess import Popen, PIPE, STDOUT
+from xml.dom.minidom import parseString
 from config import arguments
+
 
 log_path_name = './logs.log'
 ussd_answer_wait_timer = 10
@@ -31,21 +33,22 @@ def console_exec( cmd ):
     return cmd_output
 
 def parse_balances( xml_line ):
+    dom = parseString(xml_line)
     result_list = []
-    for line in xml_line.split('\n'):
-        if '<error' in line:
-            error = line.split('>')[1]
-            if '<' in error:
-                result_list.append('')
-                continue
-            error = error.replace('Баланс: ', '')
-            error = error.replace('р.','')
+    for n in range(1,9):
+        error = dom.getElementsByTagName('error'+str(n))[0].childNodes
+        if error:
+            error = error[0].data
+            error = error.replace(u'Баланс: ', '')
+            error = error.replace(u'р.',' ')
             balance = error.split(' ')[0]
             try:
                 float(balance)
                 result_list.append(balance)
             except:
-                pass
+                result_list.append('')
+        else:
+            result_list.append('')
     logging.info( result_list )
     return result_list
 
@@ -95,7 +98,7 @@ if arguments['mode'] == 'ussd':
     time.sleep( ussd_answer_wait_timer )
     resp = read_ussd_response_out_of_xml( ses )
     result_list = parse_balances( resp )
-    send_to_zabbix( result_list )
+    # send_to_zabbix( result_list )
 elif arguments['mode'] == 'sms':
     #message = 'Hello mama. I have run out of money. Send me another 400000 USD.'
     send_message( arguments['smsports'].split(',') , arguments['mode'] )
