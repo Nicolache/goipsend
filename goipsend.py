@@ -65,20 +65,20 @@ def send_to_zabbix(values_list, zabbix_sender_path, zabbix_ip, zabbix_hosts_unit
             )
 
 
-def send_message(session, lines, message_type):
+def send_message(session, lines, message_type, user, passwd, our_gsm_gateway_ip, dstnums = None, smscontent = None):
     for line in lines:
         data = {'send': 'Send'}
         data.update({'line': str(line)})
         if message_type == 'sms':
             data['action'] = 'SMS'
-            data['smscontent'] = arguments['message'],
-            dstnums = arguments['dstphonenumbers'].split(',')
+            data['smscontent'] = smscontent,
+            dstnums = dstnums.split(',')
             for dstnum in dstnums:
                 data['telnum'] = dstnum
                 data['smskey'] = get_smskey()
                 logging.info(data)
                 session.post(
-                    'http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + \
+                    'http://' + user + ':' + passwd + '@' + our_gsm_gateway_ip + \
                     '/default/en_US/sms_info.html?type=' + message_type,
                     data = data)
         if message_type == 'ussd':
@@ -87,20 +87,20 @@ def send_message(session, lines, message_type):
             data['smskey'] = get_smskey()
             logging.info(data)
             session.post(
-                'http://' + arguments['user'] + \
-                ':' + arguments['passwd'] + \
-                '@' + arguments['our_gsm_gateway_ip'] + \
+                'http://' + user + \
+                ':' + passwd + \
+                '@' + our_gsm_gateway_ip + \
                 '/default/en_US/sms_info.html?' + \
                 'type=' + message_type,
                 data = data)
 
 
-def read_ussd_response_out_of_xml(session):
+def read_ussd_response_out_of_xml(session, our_gsm_gateway_ip, user, passwd):
     answer = session.post(
-        'http://' + arguments['our_gsm_gateway_ip'] + \
+        'http://' + our_gsm_gateway_ip + \
         '/default/en_US/send_sms_status.xml?' + \
-        'u=' + arguments['user'] + \
-        '&p=' + arguments['passwd']).content
+        'u=' + user + \
+        '&p=' + passwd).content
     logging.info(answer)
     return answer
 
@@ -122,16 +122,28 @@ def main(arguments):
     arguments['mode'] = 'ussd'
     arguments = args_parse(arguments)
     if arguments['mode'] == 'ussd':
-        send_message(session, arguments['lines'], arguments['mode'])
+        send_message(
+            session,
+            lines = arguments['lines'],
+            message_type = arguments['mode'],
+            user = arguments['user'],
+            passwd = arguments['passwd'],
+            our_gsm_gateway_ip = arguments['our_gsm_gateway_ip'],
+        )
         time.sleep(ussd_answer_wait_timer)
-        resp = read_ussd_response_out_of_xml(session)
+        resp = read_ussd_response_out_of_xml(
+            session,
+            our_gsm_gateway_ip = arguments['our_gsm_gateway_ip'],
+            user = arguments['user'],
+            passwd = arguments['passwd'],
+        )
         result_list = parse_balances(resp)
         send_to_zabbix(
-            result_list, 
-            arguments['zabbix_sender_path'],
-            arguments['zabbix_ip'],
-            arguments['zabbix_hosts_unit'],
-            arguments['zabbix_keys']
+            result_list,
+            zabbix_sender_path = arguments['zabbix_sender_path'],
+            zabbix_ip = arguments['zabbix_ip'],
+            zabbix_hosts_unit = arguments['zabbix_hosts_unit'],
+            zabbix_keys = arguments['zabbix_keys']
         )
     elif arguments['mode'] == 'sms':
         send_message(arguments['smsports'].split(','), arguments['mode'])
