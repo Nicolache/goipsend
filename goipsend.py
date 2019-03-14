@@ -18,7 +18,6 @@ from config import arguments
 log_path_name = './logs.log'
 ussd_answer_wait_timer = 10
 balance_telnumber = '*100#'
-arguments.update( {'mode' : 'ussd'} )
 
 loglevel = logging.INFO
 logger = logging.getLogger("")
@@ -107,11 +106,12 @@ def read_ussd_response_out_of_xml(session):
     return answer
 
 
-def args_parse():
+def args_parse(arguments):
     for i in range(1, len(sys.argv)):
         if sys.argv[i][0:2] == '--':
             arguments[sys.argv[i][2:]] = sys.argv[i+1]
     logging.debug(arguments)
+    return arguments
 
 
 def get_smskey():
@@ -120,7 +120,8 @@ def get_smskey():
 
 def main():
     session = requests.session()
-    args_parse()
+    arguments['mode'] = 'ussd'
+    arguments = args_parse(arguments)
     if arguments['mode'] == 'ussd':
         send_message(session, arguments['lines'], arguments['mode'])
         time.sleep(ussd_answer_wait_timer)
