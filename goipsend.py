@@ -22,7 +22,11 @@ balance_telnumber = '*100#'
 loglevel = logging.INFO
 logger = logging.getLogger("")
 logger.setLevel(loglevel)
-logging.basicConfig(filename = log_path_name, level = loglevel, format = '%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    filename = log_path_name,
+    level = loglevel,
+    format = '%(asctime)s - %(levelname)s - %(message)s',
+)
 
 
 def console_exec(cmd):
