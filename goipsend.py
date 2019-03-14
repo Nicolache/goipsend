@@ -67,7 +67,7 @@ def send_to_zabbix(values_list):
             )
 
 
-def send_message(lines, message_type):
+def send_message(session, lines, message_type):
     for line in lines:
         data = {'send': 'Send'}
         data.update({'line': str(line)})
@@ -79,7 +79,7 @@ def send_message(lines, message_type):
                 data['telnum'] = dstnum
                 data['smskey'] = get_smskey()
                 logging.info(data)
-                ses.post(
+                session.post(
                     'http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + \
                     '/default/en_US/sms_info.html?type=' + message_type,
                     data = data)
@@ -88,7 +88,7 @@ def send_message(lines, message_type):
             data['telnum'] = balance_telnumber
             data['smskey'] = get_smskey()
             logging.info(data)
-            ses.post(
+            session.post(
                 'http://' + arguments['user'] + \
                 ':' + arguments['passwd'] + \
                 '@' + arguments['our_gsm_gateway_ip'] + \
@@ -118,15 +118,17 @@ def get_smskey():
     return str(int(round(time.time() * 1000000)))[8:]
 
 
-ses = requests.session()
+def main():
+    session = requests.session()
+    args_parse()
+    if arguments['mode'] == 'ussd':
+        send_message(session, arguments['lines'], arguments['mode'])
+        time.sleep(ussd_answer_wait_timer)
+        resp = read_ussd_response_out_of_xml(session)
+        result_list = parse_balances(resp)
+        send_to_zabbix(result_list)
+    elif arguments['mode'] == 'sms':
+        send_message(arguments['smsports'].split(','), arguments['mode'])
 
-args_parse()
-
-if arguments['mode'] == 'ussd':
-    send_message(arguments['lines'], arguments['mode'])
-    time.sleep(ussd_answer_wait_timer)
-    resp = read_ussd_response_out_of_xml(ses)
-    result_list = parse_balances(resp)
-    send_to_zabbix(result_list)
-elif arguments['mode'] == 'sms':
-    send_message(arguments['smsports'].split(','), arguments['mode'])
+if __name__ == "__main__":
+    sys.exit(main())
