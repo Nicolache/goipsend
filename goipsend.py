@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE, STDOUT
 from config import arguments
 
 log_path_name = './logs.log'
-ussd_answer_wait_timer = 10
+ussd_answer_wait_timer = 20
 Data = {'send': 'Send'}
 balance_telnumber = '*100#'
 Headers = {'Accept': '*/*'}
