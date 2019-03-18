@@ -39,10 +39,11 @@ def parse_balances( xml_line ):
             i += 1
             a = a + xml_line[i]
     b = a.replace('>Баланс: ', '>')
+    logging.debug( b )
     c = b.split('>')
     for d in c:
         pos = d.find('.')
-        if pos <> -1:
+        if d <> 'error1':# drop the first split
             result_list.append(d[0:pos + 3])
     logging.info( result_list )
     send_to_zabbix( result_list )
