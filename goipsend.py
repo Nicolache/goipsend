@@ -65,7 +65,7 @@ def send_message( lines, message_type ):
                 logging.info( dat )
                 ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat).content
         if message_type == 'ussd':
-            dat.update( { 'action' : 'USSD', 'telnum': balance_telnumber , 'smskey' : str(int(round(time.time() * 1000000)))[8:] } )
+            dat.update( { 'action' : 'USSD', 'telnum' : arguments[ 'balance_tel_number' + lines[i] ] , 'smskey' : str(int(round(time.time() * 1000000)))[8:] } )
             logging.info( dat )
             ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat).content
 

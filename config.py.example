@@ -13,6 +13,14 @@ arguments = {
 'zabbix_key6' : 'line6',#an item key in zabbix
 'zabbix_key7' : 'line7',#an item key in zabbix
 'zabbix_key8' : 'line8',#an item key in zabbix
+'balance_tel_number1' : '*100#',#balance number for line 1
+'balance_tel_number2' : '*100#',#balance number for line 2
+'balance_tel_number3' : '*100#',#balance number for line 3
+'balance_tel_number4' : '*100#',#balance number for line 4
+'balance_tel_number5' : '*100#',#balance number for line 5
+'balance_tel_number6' : '*100#',#balance number for line 6
+'balance_tel_number7' : '*100#',#balance number for line 7
+'balance_tel_number8' : '*100#',#balance number for line 8
 'our_gsm_gateway_ip' : '192.168.0.4',
 'zabbix_sender_path' : '/usr/bin/zabbix_sender'
 'ussdports' : '1,2,3,4'
