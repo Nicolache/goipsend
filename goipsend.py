@@ -1,14 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 *-*
-# requests   module is used for a web-access (via GUI for instanse)
-# time       module is used for sleep operator, and for unique message id generating
-# logging    module is used to manage logging to file(s)
-# sys        module is used here to retreive arguments that are followed with this script launch
-# subprocess module is used here to launch a zabbix_sender console command
-# config.py is a configuration that could be overriden by command line arguments
-import requests, time, logging, sys
+import time
+# time - module is used for sleep operator,
+# and for unique message id generating
+import logging
+# logging - module is used to manage logging to file(s)
+import sys
+# sys - module is used here to retreive
+# arguments that are followed with this script launch
+import requests
+# requests - module is used for a web-access (via GUI for instanse)
 from subprocess import Popen, PIPE, STDOUT
+# subprocess - module is used here to launch a zabbix_sender console command
 from config import arguments
+# config.py - is a configuration that could be
+# overriden by command line arguments
 
 log_path_name = './logs.log'
 ussd_answer_wait_timer = 20
@@ -21,12 +27,23 @@ loglevel = logging.INFO
 # loglevel = logging.DEBUG
 logger = logging.getLogger("")
 logger.setLevel(loglevel)
-logging.basicConfig(filename = log_path_name, level = loglevel, format = '%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+        filename=log_path_name,
+        level=loglevel,
+        format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 def console_exec(cmd):
-    p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+    p = Popen(
+            cmd,
+            shell=True,
+            stdin=PIPE,
+            stdout=PIPE,
+            stderr=STDOUT,
+            close_fds=True)
     cmd_output = p.stdout.read()
     return cmd_output
+
 
 def parse_balances(xml_line):
     i = 0
@@ -43,15 +60,26 @@ def parse_balances(xml_line):
     c = b.split('>')
     for d in c:
         pos = d.find('.')
-        if d != 'error1':# drop the first split
+        if d != 'error1':  # drop the first split
             result_list.append(d[0:pos + 3])
     logging.info(result_list)
     send_to_zabbix(result_list)
     return result_list
 
+
 def send_to_zabbix(values_list):
     for i in range(0, len(values_list)):
-        console_exec(arguments['zabbix_sender_path'] + ' -z ' + arguments['zabbix_ip'] + ' -s ' + arguments['zabbix_hosts_unit'] + ' -k '  + arguments['zabbix_key' + str(i+1)] + ' -o ' + values_list[i])
+        console_exec(
+                arguments['zabbix_sender_path']
+                + ' -z '
+                + arguments['zabbix_ip']
+                + ' -s '
+                + arguments['zabbix_hosts_unit']
+                + ' -k '
+                + arguments['zabbix_key' + str(i+1)]
+                + ' -o '
+                + values_list[i])
+
 
 def send_message(lines, message_type):
     for i in range(0, len(lines)):
@@ -61,13 +89,35 @@ def send_message(lines, message_type):
             dat.update({'action': 'SMS', 'smscontent': arguments['message']})
             dstnums = arguments['dstphonenumbers'].split(',')
             for j in range(0, len(dstnums)):
-                dat.update({'telnum': dstnums[j], 'smskey': str(int(round(time.time() * 1000000)))[8:]})
+                dat.update({
+                    'telnum': dstnums[j],
+                    'smskey': str(int(round(time.time() * 1000000)))[8:]})
                 logging.info(dat)
-                ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat).content
+                ses.post(
+                        'http://'
+                        + arguments['user']
+                        + ':'
+                        + arguments['passwd']
+                        + '@'
+                        + arguments['our_gsm_gateway_ip']
+                        + '/default/en_US/sms_info.html?type='
+                        + message_type, data=dat).content
         if message_type == 'ussd':
-            dat.update({'action': 'USSD', 'telnum': arguments[ 'balance_tel_number' + lines[i] ], 'smskey': str(int(round(time.time() * 1000000)))[8:]})
+            dat.update({
+                'action': 'USSD',
+                'telnum': arguments['balance_tel_number' + lines[i]],
+                'smskey': str(int(round(time.time() * 1000000)))[8:]})
             logging.info(dat)
-            ses.post('http://' + arguments['user'] + ':' + arguments['passwd'] + '@' + arguments['our_gsm_gateway_ip'] + '/default/en_US/sms_info.html?type=' + message_type, data = dat).content
+            ses.post(
+                    'http://'
+                    + arguments['user']
+                    + ':'
+                    + arguments['passwd']
+                    + '@'
+                    + arguments['our_gsm_gateway_ip']
+                    + '/default/en_US/sms_info.html?type='
+                    + message_type, data=dat).content
+
 
 def read_ussd_response_out_of_xml(session):
     Answer = session.post(
